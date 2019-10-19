@@ -22,6 +22,32 @@ namespace rb_tree
 
         node *root = nullptr;
 
+        node *grandparent(node *n)
+        {
+            if (n == nullptr)
+                return nullptr;
+
+            if (n->parent == nullptr)
+                return nullptr;
+
+            return n->parent->parent;
+        }
+
+        node *uncle(node *n)
+        {
+            node *g = grandparent(n);
+
+            if (g == nullptr) {
+                return nullptr;
+            }
+
+            if (n->parent == g->left_child) {
+                return g->right_child;
+            }
+
+            return g->left_child;
+        }
+
         void left_rotate(node *x)
         {
             if (x == nullptr)
@@ -89,131 +115,26 @@ namespace rb_tree
             return z->color == node_color::red;
         }
 
-        // TODO: НО КАК
+        void insert_case_1(node *);
+        void insert_case_2(node *);
+        void insert_case_3(node *);
+        void insert_case_4(node *);
+        void insert_case_5(node *);
+
         void insert_fixup(node *z)
         {
-            if (z == nullptr)
-                return;
-
-            while (is_red(z->parent)) {
-                if (z->parent == z->parent->parent->left_child) {
-                    node *y = z->parent->parent->right_child;
-                    if (is_red(y)) {
-                        z->parent->color = node_color::black;
-                        y->color = node_color::black;
-                        z->parent->parent->color = node_color::red;
-                        z = z->parent->parent;
-                    } else {
-                        if (z == z->parent->right_child) {
-                            z = z->parent;
-                            left_rotate(z);
-                        }
-                        // Может ли тут быть nullptr?
-                        z->parent->color = node_color::black;
-                        z->parent->parent->color = node_color::red;
-                        right_rotate(z->parent->parent);
-                    }
-                } else {
-                    node *y = z->parent->parent->left_child;
-                    if (is_red(y)) {
-                        z->parent->color = node_color::black;
-                        y->color = node_color::black;
-                        z->parent->parent->color = node_color::red;
-                        z = z->parent->parent;
-                    } else {
-                        if (z == z->parent->left_child) {
-                            z = z->parent;
-                            right_rotate(z);
-                        }
-                        z->parent->color = node_color::black;
-                        z->parent->parent->color = node_color::red;
-                        left_rotate(z->parent->parent);
-                    }
-                }
-            }
-            root->color = node_color::black;
+            insert_case_1(z);
         }
+
+        void remove_fixup_1(node *);
+        void remove_fixup_2(node *);
+        void remove_fixup_3(node *);
+        void remove_fixup_4(node *);
+        void remove_fixup_5(node *);
+        void remove_fixup_6(node *);
 
         void remove_fixup(node *x, node *parent = nullptr)
         {
-            node *current = x;
-            node fake_current;
-            if (x == nullptr) {
-                fake_current.color = node_color::black;
-                fake_current.parent = parent;
-                current = &fake_current;
-            }
-
-            while (current != root && !is_red(current)) {
-                // TODO: стереть правую ветку, добавить проверки на nullptr в левую,
-                // переписать правую.
-
-                if (current == current->parent->left_child) {
-                    node *brother = current->parent->right_child;
-
-                    // Случай 1
-                    if (is_red(brother)) {
-                        brother->color = node_color::black;
-                        current->parent->color = node_color::red;
-                        left_rotate(current->parent);
-                        brother = current->parent->right_child;
-                    }
-
-                    // Случай 2
-                    if (!is_red(brother->left_child) && !is_red(brother->right_child)) {
-                        brother->color = node_color::red;
-                        current = current->parent;
-                    } else {
-                        // Случай 3
-                        if (!is_red(brother->right_child)) {
-                            brother->left_child->color = node_color::black;
-                            brother->color = node_color::red;
-                            right_rotate(brother);
-                            brother = current->parent->right_child;
-                        }
-                        // Случай 4
-                        brother->color = current->parent->color;
-                        current->parent->color = node_color::black;
-                        brother->right_child->color = node_color::black;
-                        left_rotate(current->parent);
-                        current = root;
-                    }
-                } else {
-                    node *brother = current->parent->left_child;
-
-                    // Случай 1
-                    if (is_red(brother)) {
-                        brother->color = node_color::black;
-                        current->parent->color = node_color::red;
-                        right_rotate(current->parent);
-                        brother = current->parent->left_child;
-                    }
-
-                    // Случай 2
-                    if (!is_red(brother->right_child) && !is_red(brother->left_child)) {
-                        brother->color = node_color::red;
-                        current = current->parent;
-                    } else {
-                        // Случай 3
-                        if (!is_red(brother->left_child)) {
-                            brother->right_child->color = node_color::black;
-                            brother->color = node_color::red;
-                            left_rotate(brother);
-                            brother = current->parent->left_child;
-                        }
-                        // Случай 4
-                        brother->color = current->parent->color;
-                        current->parent->color = node_color::black;
-                        brother->left_child->color = node_color::black;
-                        right_rotate(current->parent);
-                        current = root;
-                    }
-                }
-            }
-
-            if (current != nullptr) {
-                current->color = node_color::black;
-            }
         }
 
     public:
@@ -447,4 +368,76 @@ namespace rb_tree
             return "<div class='tree'><ul>" + traverse_html(root) + "</ul></div>";
         }
     };
+
+    template <typename T>
+    void tree<T>::insert_case_1(node *z)
+    {
+        if (z == nullptr) {
+            return;
+        }
+
+        if (z->parent == nullptr) {
+            z->color = node_color::black;
+        } else {
+            insert_case_2(z);
+        }
+    }
+
+    template <typename T>
+    void tree<T>::insert_case_2(node *z)
+    {
+        if (z->parent->color == node_color::black) {
+            return;
+        } else {
+            insert_case_3(z);
+        }
+    }
+
+    template <typename T>
+    void tree<T>::insert_case_3(node *z)
+    {
+        node *u = uncle(z);
+
+        if (is_red(u)) {
+            z->parent->color = node_color::black;
+            u->color = node_color::black;
+
+            node *g = grandparent(z);
+            g->color = node_color::red;
+            insert_case_1(g);
+        } else {
+            insert_case_4(z);
+        }
+    }
+
+    template <typename T>
+    void tree<T>::insert_case_4(node *z)
+    {
+        node *g = grandparent(z);
+
+        if ((z == z->parent->right_child) && (z->parent == g->left_child)) {
+            left_rotate(z->parent);
+            z = z->left_child;
+        } else if ((z == z->parent->left_child) && (z->parent == g->right_child)) {
+            right_rotate(z->parent);
+            z = z->right_child;
+        }
+
+        insert_case_5(z);
+    }
+
+    template <typename T>
+    void tree<T>::insert_case_5(node *z)
+    {
+        node *g = grandparent(z);
+
+        z->parent->color = node_color::black;
+        g->color = node_color::red;
+
+        if ((z == z->parent->left_child) && (z->parent == g->left_child)) {
+            right_rotate(g);
+        } else {
+            left_rotate(g);
+        }
+    }
 } // namespace rb_tree

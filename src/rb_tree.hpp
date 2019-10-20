@@ -252,6 +252,22 @@ namespace rb_tree
         }
 
         // TODO: заменить node на что-то вроде итератора
+        node *find_weak(T key)
+        {
+            node *search_result = find(key);
+
+            node *pred = predecessor_of(search_result);
+            if (pred != nullptr && pred->key == key)
+                return pred;
+
+            node *succ = successor_of(search_result);
+            if (succ != nullptr && succ->key == key)
+                return succ;
+
+            return search_result;
+        }
+
+        // TODO: заменить node на что-то вроде итератора
         node *predecessor_of(node *current)
         {
             if (current == nullptr)

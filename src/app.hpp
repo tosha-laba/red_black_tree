@@ -18,7 +18,7 @@ using namespace ultralight;
  *      3.3: поглядеть, могут ли удаляемые узлы содержать ненулевые указатели на потомков
  * 4. Добавить ветвь сборки, чтобы можно было удалять и отца корня (nullptr) если что. Не надо.
  * 5. Пофиксить split в input'aх, чтобы убирал пустые элементы. V
- * 6. Написать новый поиск, который будет учитывать нестрогие границы КЧД (Дерево 10 10 10 станет полным высоты 2).
+ * 6. Написать новый поиск, который будет учитывать нестрогие границы КЧД (Дерево 10 10 10 станет полным высоты 2). V
  */
 class TreeApp : public WindowListener, LoadListener
 {
@@ -103,7 +103,7 @@ public:
         if (isKeyCorrect.IsBoolean() && isKeyCorrect.ToBoolean()) {
             int value = static_cast<int>(JSEval("convertDeleteKeyToInt()").ToInteger());
 
-            auto found = tree.find(value);
+            auto found = tree.find_weak(value);
             auto father = found != nullptr ? found->parent : nullptr;
 
             tree.remove(father);

@@ -18,6 +18,15 @@ namespace rb_tree
             node *right_child = nullptr;
             node_color color = node_color::red;
             T key;
+
+            ~node()
+            {
+                if (left_child != nullptr)
+                    delete left_child;
+
+                if (right_child != nullptr)
+                    delete right_child;
+            }
         };
 
         node *root = nullptr;
@@ -154,6 +163,8 @@ namespace rb_tree
     public:
         ~tree()
         {
+            if (root != nullptr)
+                delete root;
         }
 
         void insert(T item)

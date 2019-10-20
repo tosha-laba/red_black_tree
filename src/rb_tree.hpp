@@ -48,6 +48,19 @@ namespace rb_tree
             return g->left_child;
         }
 
+        node *sibling(node *n, node *parent)
+        {
+            if (parent == nullptr) {
+                return nullptr;
+            }
+
+            if (n == parent->left_child) {
+                return parent->right_child;
+            }
+
+            return parent->left_child;
+        }
+
         void left_rotate(node *x)
         {
             if (x == nullptr)
@@ -126,15 +139,16 @@ namespace rb_tree
             insert_case_1(z);
         }
 
-        void remove_fixup_1(node *);
-        void remove_fixup_2(node *);
-        void remove_fixup_3(node *);
-        void remove_fixup_4(node *);
-        void remove_fixup_5(node *);
-        void remove_fixup_6(node *);
+        void remove_case_1(node *, node *);
+        void remove_case_2(node *, node *);
+        void remove_case_3(node *, node *);
+        void remove_case_4(node *, node *);
+        void remove_case_5(node *, node *);
+        void remove_case_6(node *, node *);
 
         void remove_fixup(node *x, node *parent = nullptr)
         {
+            remove_case_1(x, parent);
         }
 
     public:
@@ -294,7 +308,7 @@ namespace rb_tree
                     // current->parent = removable->parent;
                     // current->left_child = removable->left_child;
                     // current->right_child = removable->right_child;
-                    current->color = removable->color;
+                    // current->color = removable->color;
                     current->key = removable->key;
                 }
             }
@@ -304,7 +318,12 @@ namespace rb_tree
             //
             // А если заменить на !is_red(removable)?
             if (removable != nullptr && removable->color == node_color::black) {
-                remove_fixup(child);
+                if (is_red(child)) {
+                    child->color = node_color::black;
+                } else {
+                    node *parent = (child != nullptr ? child->parent : nullptr);
+                    remove_fixup(child, parent);
+                }
             }
 
             return removable;
@@ -440,4 +459,107 @@ namespace rb_tree
             left_rotate(g);
         }
     }
+
+    template <typename T>
+    void tree<T>::remove_case_1(node *z, node *parent)
+    {
+        if (parent != nullptr) {
+            remove_case_2(z, parent);
+        }
+    }
+
+    template <typename T>
+    void tree<T>::remove_case_2(node *z, node *parent)
+    {
+        node *s = sibling(z, parent);
+
+        if (is_red(s)) {
+            parent->color = node_color::red;
+            s->color = node_color::black;
+
+            if (z == parent->left_child) {
+                left_rotate(parent);
+            } else {
+                right_rotate(parent);
+            }
+        }
+        remove_case_3(z, parent);
+    }
+
+    template <typename T>
+    void tree<T>::remove_case_3(node *z, node *parent)
+    {
+        node *s = sibling(z, parent);
+
+        if (!is_red(parent) &&
+            s != nullptr &&
+            s->color == node_color::black &&
+            !is_red(s->left_child) &&
+            !is_red(s->right_child)) {
+            s->color = node_color::red;
+            remove_case_1(parent, parent->parent);
+        } else {
+            remove_case_4(z, parent);
+        }
+    }
+
+    template <typename T>
+    void tree<T>::remove_case_4(node *z, node *parent)
+    {
+        node *s = sibling(z, parent);
+
+        if (is_red(parent) &&
+            s != nullptr &&
+            s->color == node_color::black &&
+            !is_red(s->left_child) &&
+            !is_red(s->right_child)) {
+            s->color = node_color::red;
+            parent->color = node_color::black;
+        } else {
+            remove_case_5(z, parent);
+        }
+    }
+
+    template <typename T>
+    void tree<T>::remove_case_5(node *z, node *parent)
+    {
+        node *s = sibling(z, parent);
+
+        if (s != nullptr && (s->color == node_color::black)) {
+            if (z == parent->left_child &&
+                !is_red(s->right_child) &&
+                is_red(s->left_child)) {
+                s->color = node_color::red;
+                s->left_child->color = node_color::black;
+                right_rotate(s);
+            } else if (z == parent->right_child &&
+                       !is_red(s->left_child) &&
+                       is_red(s->right_child)) {
+                s->color = node_color::red;
+                s->right_child->color = node_color::black;
+                left_rotate(s);
+            }
+        }
+        remove_case_6(z, parent);
+    }
+
+    template <typename T>
+    void tree<T>::remove_case_6(node *z, node *parent)
+    {
+        node *s = sibling(z, parent);
+
+        if (s != nullptr) {
+            s->color = parent->color;
+            parent->color = node_color::black;
+
+            if (z == parent->left_child) {
+                s->right_child->color = node_color::black;
+                left_rotate(parent);
+            } else {
+                s->left_child->color = node_color::black;
+                right_rotate(parent);
+            }
+        }
+    }
+
 } // namespace rb_tree

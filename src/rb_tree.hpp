@@ -252,6 +252,25 @@ namespace rb_tree
         }
 
         // TODO: заменить node на что-то вроде итератора
+        node *predecessor_of(node *current)
+        {
+            if (current == nullptr)
+                return current;
+
+            if (current->left_child != nullptr)
+                return maximum(current->left_child);
+
+            node *upward = current->parent;
+
+            while (upward != nullptr && current == upward->left_child) {
+                current = upward;
+                upward = current->parent;
+            }
+
+            return upward;
+        }
+
+        // TODO: заменить node на что-то вроде итератора
         node *successor_of(node *current)
         {
             if (current == nullptr)

@@ -372,6 +372,11 @@ namespace rb_tree
                 }
             }
 
+            if (removable != nullptr) {
+                removable->left_child = nullptr;
+                removable->right_child = nullptr;
+            }
+
             return removable;
         }
 

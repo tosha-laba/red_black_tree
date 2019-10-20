@@ -106,7 +106,7 @@ public:
             auto found = tree.find_weak(value);
             auto father = found != nullptr ? found->parent : nullptr;
 
-            tree.remove(father);
+            delete tree.remove(father);
 
             std::string htmlTreeRepresentation = "SecondTree.innerHTML = \"" + tree.traverse_html() + "\";";
             JSEval(htmlTreeRepresentation.c_str());

@@ -16,7 +16,7 @@ using namespace ultralight;
  *      3.1: выяснить, почему при добавлении узлов, узлы равные корню могут попасть в левое поддерево V
  *      3.2: исправить "NPE" при удалении узлов. Пример данных: ввести 1-15, удалить узел 10 V ?
  *      3.3: поглядеть, могут ли удаляемые узлы содержать ненулевые указатели на потомков
- * 4. Добавить ветвь сборки, чтобы можно было удалять и отца корня (nullptr) если что.
+ * 4. Добавить ветвь сборки, чтобы можно было удалять и отца корня (nullptr) если что. Не надо.
  * 5. Пофиксить split в input'aх, чтобы убирал пустые элементы.
  */
 class TreeApp : public WindowListener, LoadListener
@@ -78,8 +78,8 @@ public:
             tree = rb_tree::tree<int>();
 
             auto array = JSEval("convertInputKeysToArray()").ToArray();
-            for (int i = 0; i < array.length(); ++i) {
-                int value = array[i].ToInteger();
+            for (unsigned int i = 0; i < array.length(); ++i) {
+                int value = static_cast<int>(array[i].ToInteger());
                 tree.insert(value);
             }
 
@@ -100,7 +100,7 @@ public:
         auto isKeyCorrect = JSEval("deleteKeyIsCorrect();");
 
         if (isKeyCorrect.IsBoolean() && isKeyCorrect.ToBoolean()) {
-            int value = JSEval("convertDeleteKeyToInt()").ToInteger();
+            int value = static_cast<int>(JSEval("convertDeleteKeyToInt()").ToInteger());
 
             auto found = tree.find(value);
             auto father = found != nullptr ? found->parent : nullptr;

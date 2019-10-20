@@ -1,0 +1,58 @@
+body {
+    margin: 0 0 0;
+    /* overflow: hidden; */
+}
+
+.menu-bar {
+    overflow: hidden;
+    background-color: #eee;
+    position: sticky;
+    top: 0;
+    width: 99%;
+    padding: 8px 8px 8px 8px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 12pt;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+    z-index: 2;
+}
+
+.menu-block {
+    display: inline-block;
+    margin: 5px 15px 5px 15px;
+}
+
+.menu-block-header {
+    margin-bottom: 4px;
+    font-weight: bold;
+}
+
+input {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 2px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.35);
+    min-height: 28px;
+}
+
+.tree-container {
+    z-index: 1;
+    position: absolute;
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.tree-block {
+    flex: 1;
+    width: 50%;
+    border: 1px solid rgba(0, 0, 0, 0.35);
+    border-radius: 4px;
+    padding-bottom: 15px;
+}
+
+.tree-block-header {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: bold;
+    margin-left: 5px;
+    margin-top: 5px;
+}

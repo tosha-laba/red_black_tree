@@ -2,7 +2,6 @@
 #include <iostream>
 #include <sstream>
 
-// TODO: проверить корректность методов
 namespace rb_tree
 {
     template <typename T>
@@ -31,6 +30,7 @@ namespace rb_tree
 
         node *root = nullptr;
 
+        // Ищет "дедушку" узла n
         node *grandparent(node *n)
         {
             if (n == nullptr)
@@ -42,6 +42,7 @@ namespace rb_tree
             return n->parent->parent;
         }
 
+        // Ищет "дядю" узла n
         node *uncle(node *n)
         {
             node *g = grandparent(n);
@@ -57,6 +58,7 @@ namespace rb_tree
             return g->left_child;
         }
 
+        // Ищет "брата" узла n с родителем parent
         node *sibling(node *n, node *parent)
         {
             if (parent == nullptr) {
@@ -70,6 +72,7 @@ namespace rb_tree
             return parent->left_child;
         }
 
+        // Левый поворот относительно узла x
         void left_rotate(node *x)
         {
             if (x == nullptr)
@@ -99,6 +102,7 @@ namespace rb_tree
             x->parent = y;
         }
 
+        // Правый поворот относительно узла x
         void right_rotate(node *x)
         {
             if (x == nullptr)
@@ -128,6 +132,7 @@ namespace rb_tree
             x->parent = y;
         }
 
+        // Проверяет, является ли z красным
         bool is_red(node *z)
         {
             if (z == nullptr) {
@@ -143,6 +148,7 @@ namespace rb_tree
         void insert_case_4(node *);
         void insert_case_5(node *);
 
+        // Восстановление красно-чёрных свойств при добавлении узла
         void insert_fixup(node *z)
         {
             insert_case_1(z);
@@ -155,6 +161,7 @@ namespace rb_tree
         void remove_case_5(node *, node *);
         void remove_case_6(node *, node *);
 
+        // Восстановление красно-чёрных свойств при удалении узла
         void remove_fixup(node *x, node *parent = nullptr)
         {
             remove_case_1(x, parent);
@@ -167,6 +174,7 @@ namespace rb_tree
                 delete root;
         }
 
+        // Добавление в дерево элемента с ключом item
         void insert(T item)
         {
             node *current = root;
@@ -201,11 +209,9 @@ namespace rb_tree
             insert_fixup(inserting);
         }
 
-        // TODO: заменить node на что-то вроде итератора
+        // Поиск минимума от узла current
         node *minimum(node *current = root)
         {
-            // node *current = root;
-
             if (current == nullptr)
                 return current;
 
@@ -216,11 +222,9 @@ namespace rb_tree
             return current;
         }
 
-        // TODO: заменить node на что-то вроде итератора
+        // Поиск максимума от узла current
         node *maximum(node *current = root)
         {
-            // node *current = root;
-
             if (current == nullptr)
                 return current;
 
@@ -231,7 +235,7 @@ namespace rb_tree
             return current;
         }
 
-        // TODO: заменить node на что-то вроде итератора
+        // Поиск в дереве элемента с ключом key
         node *find(T key)
         {
             node *current = root;
@@ -251,7 +255,9 @@ namespace rb_tree
             }
         }
 
-        // TODO: заменить node на что-то вроде итератора
+        // Поиск в дереве элемента с ключом key,
+        // который находится глубже, чем первое вхождение
+        // элемента с таким ключом в дерево.
         node *find_weak(T key)
         {
             node *search_result = find(key);
@@ -267,7 +273,7 @@ namespace rb_tree
             return search_result;
         }
 
-        // TODO: заменить node на что-то вроде итератора
+        // Поиск идущего перед current узла дерева
         node *predecessor_of(node *current)
         {
             if (current == nullptr)
@@ -286,7 +292,7 @@ namespace rb_tree
             return upward;
         }
 
-        // TODO: заменить node на что-то вроде итератора
+        // Поиск идущего после current узла дерева
         node *successor_of(node *current)
         {
             if (current == nullptr)
@@ -305,7 +311,7 @@ namespace rb_tree
             return upward;
         }
 
-        // TODO: Заменить node на что-то вроде итератора
+        // Удаление узла из дерева
         node *remove(node *current)
         {
             if (current == nullptr)
@@ -351,18 +357,12 @@ namespace rb_tree
             // то копируем данные (не служебные) в оставшийся элемент
             if (removable != current) {
                 if (removable != nullptr) {
-                    // current->parent = removable->parent;
-                    // current->left_child = removable->left_child;
-                    // current->right_child = removable->right_child;
-                    // current->color = removable->color;
                     current->key = removable->key;
                 }
             }
 
             // Если узел чёрный, то могли быть нарушены КЧ-свойства
             // => необходимо их восстановить
-            //
-            // А если заменить на !is_red(removable)?
             if (removable != nullptr && removable->color == node_color::black) {
                 if (is_red(child)) {
                     child->color = node_color::black;
@@ -397,6 +397,7 @@ namespace rb_tree
             traverse(current->right_child, indent + 1);
         }
 
+        // Симметричный обход дерева с выводом информации о нём
         void traverse()
         {
             traverse(root, 0);
@@ -433,6 +434,7 @@ namespace rb_tree
             return ret_ss.str();
         }
 
+        // Сериализация дерева в многоуровневый список HTML
         std::string traverse_html()
         {
             return "<div class='tree'><ul>" + traverse_html(root) + "</ul></div>";

@@ -380,27 +380,27 @@ namespace rb_tree
             return removable;
         }
 
-        void traverse(node *current, int indent)
+        void traverse(node *current, int indent, std::ofstream &out)
         {
             if (current == nullptr)
                 return;
 
-            std::cout << '\n';
+            out << '\n';
 
             for (int i = 0; i < indent; ++i) {
-                std::cout << '\t';
+                out << '\t';
             }
 
-            std::cout << "key:" << current->key << "; color: " << (current->color == node_color::black ? "black" : "red");
+            out << "key:" << current->key << "; color: " << (current->color == node_color::black ? "black" : "red");
 
-            traverse(current->left_child, indent + 1);
-            traverse(current->right_child, indent + 1);
+            traverse(current->left_child, indent + 1, out);
+            traverse(current->right_child, indent + 1, out);
         }
 
         // Симметричный обход дерева с выводом информации о нём
-        void traverse()
+        void traverse(std::ofstream &out = std::cout)
         {
-            traverse(root, 0);
+            traverse(root, 0, out);
         }
 
         std::string traverse_html(node *current)

@@ -5,6 +5,8 @@
 #include <AppCore/JSHelpers.h>
 #include <AppCore/Overlay.h>
 #include <AppCore/Window.h>
+#include <ctime>
+#include <fstream>
 
 using namespace ultralight;
 
@@ -18,6 +20,8 @@ class TreeApp : public WindowListener, LoadListener
     const int app_height = 768;
 
     rb_tree::tree<int> tree;
+
+    std::ofstream log_file;
 
 public:
     TreeApp()
@@ -44,6 +48,11 @@ public:
         m_overlay->view()->LoadURL("file:///index.html");
 
         m_window->set_listener(this);
+
+        log_file.open("rbt.log", std::ios_base::app);
+        auto time = std::time(nullptr);
+        log_file << "Session: " << std::ctime(&time) << '\n';
+        log_file.flush();
     }
 
     virtual ~TreeApp() {}
@@ -77,6 +86,18 @@ public:
             JSEval(JSString("FirstTree.innerHTML = \"") + htmlTreeRepresentation + JSString("\";"));
             JSEval(JSString("SecondTree.innerHTML = \"") + htmlTreeRepresentation + JSString("\";"));
             JSEval("informInputAboutGoodOperation(InputKeysInput, true);");
+
+            // Logging
+            log_file << "Tree generation:\nKeys: ";
+
+            for (unsigned int i = 0; i < array.length(); ++i) {
+                int value = static_cast<int>(array[i].ToInteger());
+                log_file << value << ' ';
+            }
+
+            tree.traverse(log_file);
+            log_file << "\n\n";
+            log_file.flush();
         }
     }
 
@@ -94,6 +115,12 @@ public:
             auto found = tree.find_weak(value);
             auto father = found != nullptr ? found->parent : nullptr;
 
+            std::stringstream father_key;
+
+            if (father != nullptr) {
+                father_key << father->key;
+            }
+
             delete tree.remove(father);
 
             std::string htmlTreeRepresentation = "SecondTree.innerHTML = \"" + tree.traverse_html() + "\";";
@@ -101,6 +128,23 @@ public:
 
             String fatherFound = father != nullptr ? "true" : "false";
             JSEval(JSString("informInputAboutGoodOperation(DeleteKeyInput,") + fatherFound + String(")"));
+
+            // Logging
+            log_file << "Removing:\n";
+            log_file << "Child of removable element: ";
+            log_file << value << "\n";
+
+            log_file << "Removable element: ";
+            if (father == nullptr) {
+                log_file << "Not found\n\n";
+            } else {
+                log_file << father_key.str();
+                log_file << "\nTree:";
+
+                tree.traverse(log_file);
+                log_file << "\n\n";
+            }
+            log_file.flush();
         }
     }
 
